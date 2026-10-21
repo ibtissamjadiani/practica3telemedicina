@@ -34,10 +34,14 @@ function handleLogin() {
             
             rest.get("/api/gestores/" + gestorActual, async function(status, gestorData) {
                 if (status == 200) {
-                    await wsClient.conectar(gestorActual, 'gestor', gestorData.nombre + " " + gestorData.apellidos);
-                    wsClient.onAviso(function(aviso) {
-                        agregarAvisoATabla(aviso);
-                    });
+                    try {
+                        await wsClient.conectar(gestorActual, 'gestor', gestorData.nombre + " " + gestorData.apellidos);
+                        wsClient.onAviso(function(aviso) {
+                            agregarAvisoATabla(aviso);
+                        });
+                    } catch (e) {
+                        // Ignorar errores de websocket si no se usan
+                    }
                 }
             });
             
@@ -84,7 +88,6 @@ function mostrarRegistro() {
     document.getElementById("registro-titulo").innerHTML = "Registro de Gestor";
     var gestorId = document.getElementById("gestor-id");
     if (gestorId) gestorId.value = "";
-    document.getElementById("gestor-id").value = "";
     document.getElementById("reg-nombre").value = "";
     document.getElementById("reg-apellidos").value = "";
     document.getElementById("reg-usuario").value = "";
@@ -104,13 +107,10 @@ function handleRegistro() {
         password: document.getElementById("reg-password").value
     };
     
-    console.log("Enviando registro:", gestorData);
-    
     var gestorId = document.getElementById("gestor-id").value;
     
     if (gestorId) {
         rest.put("/api/gestores/" + gestorId, gestorData, function(status, response) {
-            console.log("Respuesta edición:", status, response);
             if (status == 200) {
                 alert("Perfil actualizado");
                 mostrarVista("main");
@@ -121,8 +121,6 @@ function handleRegistro() {
         });
     } else {
         rest.post("/api/gestores", gestorData, function(status, response) {
-            console.log("Respuesta registro:", status, response);
-            
             if (status == 201) {
                 alert("Registro exitoso. Ya puedes hacer login.");
                 mostrarVista("login");
@@ -153,7 +151,7 @@ function editarPerfil() {
 
 function logout() {
     if (wsClient) {
-        wsClient.desconectar();
+        try { wsClient.desconectar(); } catch(e) {}
     }
     localStorage.removeItem("jwt_token"); 
     gestorActual = null;
@@ -472,9 +470,6 @@ function verReservasSinActivar() {
     });
 }
 
-// ============================================================================
-// MAPEO OFICIAL DEL ENUNCIADO (PARTE 1)
-// ============================================================================
 var AREAS_MEDICAS = {
     1: "Alergología",
     2: "Anestesiología",
@@ -496,26 +491,21 @@ var AREAS_MEDICAS = {
     18: "Urología"
 };
 
-// ============================================================================
-// CARGAR Y ORDENAR RANKING POR ÁREA MÉDICA (GET)
-// ============================================================================
 function cargarRankingMinisterio() {
     var tbody = document.getElementById("ranking-ministerio-tbody");
     if (!tbody) return;
 
-    rest.get("https://undefined.ua.es/telemedicina/api/datos", function(status, data) {
+    rest.get("/api/ministerio/datos", function(status, data) {
         if (status !== 200 || !Array.isArray(data)) {
             tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Error al consultar los datos del Ministerio</td></tr>";
             return;
         }
 
-        // Inicializar los contadores de las 18 áreas a 0
         var reservasPorArea = {};
         for (var i = 1; i <= 18; i++) {
             reservasPorArea[i] = 0;
         }
 
-        // Acumular el total de reservas registradas para cada área médica
         data.forEach(function(item) {
             var areaId = parseInt(item.id_area);
             if (reservasPorArea[areaId] !== undefined) {
@@ -524,7 +514,6 @@ function cargarRankingMinisterio() {
             }
         });
 
-        // Crear la lista para ordenar de mayor a menor número de reservas
         var ranking = [];
         for (var id = 1; id <= 18; id++) {
             ranking.push({
@@ -534,12 +523,10 @@ function cargarRankingMinisterio() {
             });
         }
 
-        // Orden descendente (ranking)
         ranking.sort(function(a, b) {
             return b.total - a.total;
         });
 
-        // Renderizar las filas en la tabla del gestor
         tbody.innerHTML = "";
         ranking.forEach(function(area, index) {
             tbody.innerHTML += 
@@ -551,10 +538,6 @@ function cargarRankingMinisterio() {
         });
     });
 }
-
-// ============================================================================
-// ENVIAR TODAS LAS RESERVAS DEL HOSPITAL AL MINISTERIO (POST)
-// ============================================================================
 
 function peticionAsync(url) {
     return new Promise(function(resolve) {
@@ -569,30 +552,26 @@ function peticionAsync(url) {
 }
 
 async function enviarReservasAlMinisterio() {
-    var hoy = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    var hoy = new Date().toISOString().split("T")[0];
 
-    // 1. Asegurar que categorías y modelos están cargados en memoria
     if (!categorias || categorias.length === 0 || !modelos || modelos.length === 0) {
         await new Promise(function(resolve) {
             cargarDatosAuxiliares(resolve);
         });
     }
 
-    // 2. Obtener todos los recursos del hospital
     var recursos = await peticionAsync("/api/recursos");
     if (!recursos || !Array.isArray(recursos) || recursos.length === 0) {
         alert("No se han encontrado recursos en el hospital.");
         return;
     }
 
-    var sanitariosCache = {}; // Cache local para evitar llamadas duplicadas al mismo sanitario
+    var sanitariosCache = {}; 
     var listaDatos = [];
 
-    // 3. Recorrer todos los recursos y recopilar cada una de sus reservas
     for (var i = 0; i < recursos.length; i++) {
         var rec = recursos[i];
         
-        // Determinar categoría real del recurso
         var mod = getModeloById(rec.modelo);
         var cat = getCategoriaById(mod ? mod.categoria : null);
         var nombreCategoria = cat ? cat.nombre : "Equipamiento Médico";
@@ -604,7 +583,6 @@ async function enviarReservasAlMinisterio() {
                 var res = reservasRecurso[j];
                 var idSanitario = res.sanitario;
 
-                // Consultar datos del sanitario si no están en caché
                 if (!sanitariosCache[idSanitario]) {
                     var datosSanitario = await peticionAsync("/api/sanitarios/" + idSanitario);
                     sanitariosCache[idSanitario] = datosSanitario || { nombre: "Sanitario", apellidos: "Desconocido" };
@@ -612,7 +590,6 @@ async function enviarReservasAlMinisterio() {
 
                 var s = sanitariosCache[idSanitario];
 
-                // Formatear fechas respetando los nombres exigidos por el Ministerio
                 var fecPet = res.fecha_peticion ? res.fecha_peticion.split("T")[0] : hoy;
                 var fecIni = res.fecha_inicio ? res.fecha_inicio.replace("T", " ").substring(0, 19) : (hoy + " 08:00:00");
                 var fecFin = res.fecha_fin ? res.fecha_fin.replace("T", " ").substring(0, 19) : (hoy + " 10:00:00");
@@ -631,26 +608,21 @@ async function enviarReservasAlMinisterio() {
         }
     }
 
-    // 4. Si no hay reservas creadas en el sistema, avisar al usuario
     if (listaDatos.length === 0) {
         alert("No hay reservas registradas en ningún recurso para enviar.");
         return;
     }
 
-    // 5. Construcción del payload final con todas las reservas recopiladas
     var payload = {
         id_area: 13,
         fecha: hoy,
         datos: listaDatos
     };
 
-    console.log("Enviando " + listaDatos.length + " reservas al Ministerio:", payload);
-
-    // 6. Envío al servicio del Ministerio
-    rest.post("https://undefined.ua.es/telemedicina/api/datos", payload, function(status, response) {
+    rest.post("/api/ministerio/datos", payload, function(status, response) {
         if (status === 200 || status === 201) {
             alert("Se han enviado con éxito " + listaDatos.length + " reservas al Ministerio para el área 13 (" + (AREAS_MEDICAS[13] || "Área 13") + ").");
-            cargarRankingMinisterio(); // Actualiza la tabla del ranking sumando todas las enviadas
+            cargarRankingMinisterio();
         } else {
             console.error("Error devuelto por el Ministerio:", status, response);
             alert("Error al enviar reservas al Ministerio (Status: " + status + ")");
