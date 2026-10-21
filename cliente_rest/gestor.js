@@ -495,7 +495,7 @@ function cargarRankingMinisterio() {
     var tbody = document.getElementById("ranking-ministerio-tbody");
     if (!tbody) return;
 
-    rest.get("/api/ministerio/datos", function(status, data) {
+    rest.get("https://undefined.ua.es/telemedicina/api/datos", function(status, data) {
         if (status !== 200 || !Array.isArray(data)) {
             tbody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Error al consultar los datos del Ministerio</td></tr>";
             return;
@@ -619,7 +619,7 @@ async function enviarReservasAlMinisterio() {
         datos: listaDatos
     };
 
-    rest.post("/api/ministerio/datos", payload, function(status, response) {
+    rest.post("https://undefined.ua.es/telemedicina/api/datos", payload, function(status, response) {
         if (status === 200 || status === 201) {
             alert("Se han enviado con éxito " + listaDatos.length + " reservas al Ministerio para el área 13 (" + (AREAS_MEDICAS[13] || "Área 13") + ").");
             cargarRankingMinisterio();
