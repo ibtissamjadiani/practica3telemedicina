@@ -1,0 +1,219 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+.view {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.login-container, .form-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:last-child {
+    margin-right: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff3f3;
+    border-radius: 4px;
+}
+
+
+.reserva-finalizada {
+    background-color: white;
+}
+
+.reserva-uso-normal {
+    background-color: #cce5ff;
+}
+
+.reserva-uso-excedido {
+    background-color: #f8d7da;
+}
+
+.reserva-pendiente {
+    background-color: #d4edda;
+}
+
+.btn-editar {
+    background-color: #28a745;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-editar:hover {
+    background-color: #218838;
+}
+
+.btn-borrar {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-borrar:hover {
+    background-color: #c82333;
+}
+
+h2, h3, h4 {
+    color: #333;
+    margin-top: 0;
+}
+/* Estilos para avisos */
+.aviso-rojo {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.aviso-azul {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.aviso-verde {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.avisos-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.seccion-ministerio {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.seccion-ministerio-acciones {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-ministerio-enviar {
+    background-color: #17a2b8;
+}
+
+.btn-ministerio-enviar:hover {
+    background-color: #138496;
+}
+
+.btn-ministerio-actualizar {
+    background-color: #6c757d;
+}
+
+.btn-ministerio-actualizar:hover {
+    background-color: #5a6268;
+}
+
+#tabla-ranking-ministerio {
+    margin-top: 10px;
+}
+
+#tabla-ranking-ministerio th:first-child {
+    width: 60px;
+    text-align: center;
+}
+
+#tabla-ranking-ministerio td:first-child {
+    text-align: center;
+    font-weight: bold;
+    color: #666;
+}
+
+#tabla-ranking-ministerio th:last-child,
+#tabla-ranking-ministerio td:last-child {
+    text-align: right;
+    width: 180px;
+    font-variant-numeric: tabular-nums;
+}
+
+#tabla-ranking-ministerio tbody tr:nth-child(1) td {
+    background-color: #fff9e6; /* Resalta el 1º puesto del ranking */
+    font-weight: bold;
+}
