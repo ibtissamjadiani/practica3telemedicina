@@ -34,6 +34,7 @@ function createRESTServer(data, siguientesIds, wsServer) {
     const app = express();
 
     app.use(express.json());
+    app.use("/appCliente", express.static("cliente_rest"));
 
     app.get("/api/ubicaciones", verificarJWT, async function (req, res) {
         try {
