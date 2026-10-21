@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor Hospitalario</title>
+    <link rel="stylesheet" href="gestor.css">
+</head>
+<body>
+    
+    <div id="login-view" class="view">
+        <div class="login-container">
+            <h2>Acceso Gestor</h2>
+            <div>
+                <label>Usuario:</label>
+                <input type="text" id="usuario" value="admin">
+            </div>
+            <div>
+                <label>Contraseña:</label>
+                <input type="password" id="password" value="admin">
+            </div>
+            <div>
+                <button onclick="handleLogin()">Entrar</button>
+                <button onclick="mostrarRegistro()">Registrar</button>
+            </div>
+            <div id="login-error" class="error"></div>
+        </div>
+    </div>
+
+ 
+    <div id="registro-view" class="view" style="display:none">
+        <div class="form-container">
+            <h2 id="registro-titulo">Registro de Gestor</h2>
+            <input type="hidden" id="gestor-id">
+            <div>
+                <label>Nombre:</label>
+                <input type="text" id="reg-nombre">
+            </div>
+            <div>
+                <label>Apellidos:</label>
+                <input type="text" id="reg-apellidos">
+            </div>
+            <div>
+                <label>Usuario:</label>
+                <input type="text" id="reg-usuario">
+            </div>
+            <div>
+                <label>Contraseña:</label>
+                <input type="password" id="reg-password">
+            </div>
+            <div>
+                <button onclick="handleRegistro()">Guardar</button>
+                <button onclick="cancelarRegistro()">Cancelar</button>
+            </div>
+            <div id="registro-error" class="error"></div>
+        </div>
+    </div>
+
+ 
+    <div id="main-view" class="view" style="display:none">
+        <div class="header">
+            <div id="bienvenida"></div>
+            <div>
+                <button onclick="editarPerfil()">Editar Perfil</button>
+                <button onclick="logout()">Salir</button>
+            </div>
+        </div>
+        <!-- Tabla de Avisos -->
+<h3>Avisos del Sistema</h3>
+<table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+    <thead>
+        <tr>
+            <th style="border:1px solid #ddd;padding:8px;">Fecha</th>
+            <th style="border:1px solid #ddd;padding:8px;">Origen</th>
+            <th style="border:1px solid #ddd;padding:8px;">Texto del Aviso</th>
+        </tr>
+    </thead>
+    <tbody id="avisosBody"></tbody>
+</table>
+
+        <div class="seccion-ministerio">
+            <h3>Ministerio de Sanidad: Ranking de Reservas por Especialidad</h3>
+            
+            <div class="seccion-ministerio-acciones">
+                <button type="button" class="btn-ministerio-enviar" onclick="enviarReservasAlMinisterio()">Enviar Reservas al Ministerio</button>
+                <button type="button" class="btn-ministerio-actualizar" onclick="cargarRankingMinisterio()">Actualizar Ranking</button>
+            </div>
+
+            <table id="tabla-ranking-ministerio">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Área Médica</th>
+                        <th>Reservas Totales</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-ministerio-tbody">
+                    <tr>
+                        <td colspan="3" style="text-align: center;">Sin datos cargados. Pulsa "Actualizar Ranking" o inicia sesión.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+   
+        <div id="recursos-view">
+            <h3>Filtros de búsqueda</h3>
+            <div class="filtros">
+                <div>
+                    <label>Categoría:</label>
+                    <select id="filtro-categoria">
+                        <option value="Todos">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Modelo:</label>
+                    <select id="filtro-modelo">
+                        <option value="Todos">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Ubicación:</label>
+                    <select id="filtro-ubicacion">
+                        <option value="Todos">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Estado:</label>
+                    <select id="filtro-estado">
+                        <option value="Todos">Todos</option>
+                        <option value="0">Operativo</option>
+                        <option value="1">De baja</option>
+                        <option value="2">En mantenimiento</option>
+                    </select>
+                </div>
+                <div>
+                    <button onclick="buscarRecursos()">Buscar</button>
+                    <button onclick="nuevoRecurso()">Añadir Recurso</button>
+                </div>
+            </div>
+
+            <h3>Listado de Recursos</h3>
+            <table id="tabla-recursos" border="1">
+                <thead>
+                    <tr>
+                        <th>Nº Serie</th>
+                        <th>Categoría</th>
+                        <th>Modelo</th>
+                        <th>Ubicación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="recursos-tbody"></tbody>
+            </table>
+        </div>
+
+        
+        <div id="recurso-view" style="display:none">
+            <h3 id="recurso-titulo">Ficha de Recurso</h3>
+            <form id="recurso-form">
+                <input type="hidden" id="recurso-id">
+                <div>
+                    <label>Categoría:</label>
+                    <select id="recurso-categoria" onchange="cargarModelosPorCategoria()">
+                        <option value="">Seleccione categoría</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Modelo:</label>
+                    <select id="recurso-modelo">
+                        <option value="">Seleccione modelo</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Número de serie:</label>
+                    <input type="text" id="recurso-serie">
+                </div>
+                <div>
+                    <label>Ubicación:</label>
+                    <select id="recurso-ubicacion">
+                        <option value="">Seleccione ubicación</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Estado:</label>
+                    <select id="recurso-estado">
+                        <option value="0">Operativo</option>
+                        <option value="1">De baja</option>
+                        <option value="2">En mantenimiento</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="guardarRecurso()">Guardar</button>
+                    <button type="button" onclick="volverALista()">Volver</button>
+                </div>
+            </form>
+
+            <h4>Reservas del recurso</h4>
+            <table id="tabla-reservas" border="1">
+                <thead>
+                    <tr>
+                        <th>Sanitario</th>
+                        <th>Horas estimadas</th>
+                        <th>Fecha petición</th>
+                        <th>Fecha inicio</th>
+                        <th>Partes</th>
+                    </tr>
+                </thead>
+                <tbody id="reservas-tbody"></tbody>
+            </table>
+
+            <h4>Reseñas del recurso</h4>
+            <table id="tabla-resenvas" border="1">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Sanitario</th>
+                        <th>Valoración</th>
+                        <th>Comentario</th>
+                    </tr>
+                </thead>
+                <tbody id="resenvas-tbody"></tbody>
+            </table>
+        </div>
+            <div class="avisos-section" style="margin-top: 30px; border-top: 2px solid #ccc; padding-top: 20px;">
+       
+    </div>
+    </div>
+    
+    <script src="rest.js"></script>
+    <script src="ws-client.js"></script>
+    <script src="gestor.js"></script>
+</body>
+</html>
